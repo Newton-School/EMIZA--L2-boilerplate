@@ -1,23 +1,24 @@
-const users   = require("../models/user.js");
+const Users   = require("../models/user.js");
 const jwt = require("jsonwebtoken");
 const bcrypt  = require('bcrypt');
 
 const saltRounds = 10;
 const JWT_SECRET = "newtonSchool";
 
+
 const loginUser =async (req, res) => {
 
     const email  = req.body.email;
     const password = req.body.password;
 
-    const user = await users.findOne({ 'email':email });
+    const user = await Users.findOne({ 'email':email });
 
     if(user){
 
         if(bcrypt.compareSync(password , user.password)){
 
             const token = jwt.sign(
-                { userId: user._id, name: user.name, email: user.email, role:user.role },
+                { userId: user._id },
                 JWT_SECRET,
                 {
                     expiresIn: "1h",
@@ -29,14 +30,12 @@ const loginUser =async (req, res) => {
                 "token" : token
             });
         }else{
-            console.log('Invalid Password');
             res.status(403).json({
                 "message": 'Invalid Password, try again !!',
                 "status": 'fail'
             });
         }
     }else{
-        console.log('User doesnot exist');
         res.status(404).json({
             "message": 'User with this E-mail does not exist !!',
             "status": 'fail'
@@ -46,35 +45,42 @@ const loginUser =async (req, res) => {
 }
 
 
-
 const signupUser = async (req, res) => {
 
-    var {email, password, name, role} = req.body;
+    const {email, password, name, role} = req.body;
 
+    const user = await Users.findOne({ email });
+    if(user){
+        res.status(409).json({
+            "message": 'User with given Email allready register',
+            "status": 'fail'
+        });
+    }
 
     const salt = bcrypt.genSaltSync(saltRounds);
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    var newuser = {
-        "name":name,
-        "email":email,
-        "password": hashedPassword,
-        "role": role
+    const newuser = {
+        name,
+        email,
+        password: hashedPassword,
+        role
     };
 
-    users.create(newuser).then((user) => {
+    try{
+        await Users.create(newuser);
         res.status(200).json({
             "message": 'User SignedUp successfully',
             "status": 'success'
         });
-    })
-    .catch((error) => {
+    } catch(err){
         res.status(404).json({
             "status": 'fail',
-            "message": error.message
+            "message": 'Something went wrong'
         });
-    });
+    }
 
 }
 
 module.exports = { loginUser , signupUser };
+

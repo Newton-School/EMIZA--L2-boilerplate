@@ -1,6 +1,6 @@
-const users   = require("../models/user.js");
+const Users   = require("../models/user.js");
 const jwt = require("jsonwebtoken");
-const tasks   = require("../models/task.js");
+const Tasks   = require("../models/task.js");
 const bcrypt  = require('bcrypt');
 const { valid } = require("joi");
 const JWT_SECRET = "newtonSchool";
@@ -8,9 +8,9 @@ const JWT_SECRET = "newtonSchool";
 /*
 
 request.body = {
-    "heading": heading,
-    "description": description,
-    "token": token
+    heading: heading,
+    description: description,
+    token: token
 }
 
 1. Create new task from request body .
@@ -21,7 +21,7 @@ Response :
 
 1. Success
 
-200 Code
+200 StatusCode
 
 json = 
 {
@@ -30,7 +30,15 @@ json =
     "status": 'success'
 }
 
-2. Fail to do
+2. Unabel to verify token (Invalid Token)
+404 Status Code
+json = 
+{
+    "status": 'fail',
+    "message": 'Invalid token'
+}
+
+3. Fail to do
 
 404 Status Code
 json = 
@@ -46,10 +54,53 @@ const createTask =async (req, res) => {
     //creator_id is user id who have created this task.
 
     const { heading, description, token  } = req.body;
-    
     //Write your code here.
 
 }
 
+/*
 
-module.exports = { createTask };
+getdetailTask Controller
+
+req.body = {
+    "task_id" : task_id,
+    "token" : token
+}
+
+1. Return the detail of the task with given task_id.
+2. For this task you will be only test with valid (Existing) task_id.
+
+Response --> 
+
+1. Success
+
+200 Status code
+
+json = {
+  status: 'success',
+  data: {
+    Status: 'pending',
+    _id: 'mxcnbxzcn-khscc',
+    heading: 'Study Doglapan',
+    description: 'Need to study atleast 10 Pages',
+    creator_id: 'kdjhgsdjgmsbmbs'
+  }
+}
+
+2. Fail
+
+404 Status Code
+json = {
+    "status": 'fail',
+    "message": error message
+}
+
+*/
+
+const getdetailTask = async (req, res) => {
+
+    const task_id = req.body.task_id;
+    //Write your code here.
+}
+
+module.exports = { createTask, getdetailTask };
